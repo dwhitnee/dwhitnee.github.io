@@ -14,9 +14,8 @@ function makeUI() {
 }
 
 function populateTable( data ) {
-  var table = $("#periodicTable");
-  table.empty();
-  table.append( $('<div class="dataTable"/>') );
+  var table = $("#periodicTable .datatable");
+  $("#periodicTable .datatable .dataStart").empty().nextAll().empty();
 
   var allTypeNames = Object.keys( data ).sort();
 
@@ -31,6 +30,17 @@ function populateTable( data ) {
     row.append( $('<div class="cell" />').text( instanceType.memory ));
     row.append( $('<div class="cell" />').text( instanceType.storage ));
     row.append( $('<div class="cell" />').text( instanceType.networkSpeed ));
+
+    var costPerMonth = 0;;
+    if (instanceType.price.Linux) {
+      costPerMonth = 30 * 24 * instanceType.price.Linux.OnDemand;
+    }
+    row.append( $('<div class="cell" />').text( "$" + costPerMonth.toFixed(2) + "/mo"));
+
+    if (instanceType.price.Windows) {
+      costPerMonth = 30 * 24 * instanceType.price.Windows.OnDemand;
+    }
+    row.append( $('<div class="cell" />').text( "$" + costPerMonth.toFixed(2) + "/mo"));
 
     table.append( row );
   }
@@ -68,24 +78,12 @@ function processPricingData( data ) {
 
   $.each(
     data.products,
-    function( i, product ) {
+    function( sku, product ) {
       productTypes[product.productFamily] = 1;
 
       if (product.productFamily === "Compute Instance") {
 
         var attr = product.attributes;
-
-        var skuCount = 1;
-
-        if (instanceTypes[attr.location] &&
-            instanceTypes[attr.location][attr.instanceType])
-        {
-          skuCount = ++instanceTypes[attr.location][attr.instanceType].count;
-          // console.log("Dupe " + attr.location + " " + attr.instanceType );
-          // tenancy can be shared or dedicated
-          // operatingSystem, preInstalledSw, license varies by SKU
-
-        }
 
         instanceTypes[attr.location] = instanceTypes[attr.location] || {};
 
@@ -95,20 +93,52 @@ function processPricingData( data ) {
         //   console.log( JSON.stringify( attr ));
         // }
 
-        instanceTypes[attr.location][attr.instanceType] = {
-          vcpus:   attr.vcpu,               // cores
-          speed:  attr.clockSpeed,         // GHz
-          arch:   attr.processorArchitecture, // 32 or 64 bit
-          cpu:    attr.physicalProcessor,  // text desc
-          memory: attr.memory,
-          storage: attr.storage,
-          networkSpeed: attr.networkPerformance,
-          family: attr.instanceFamily,  // optimized for storage, cpu, etc
-          skuCount: skuCount
-        };
+        if (!instanceTypes[attr.location][attr.instanceType]) {
+          instanceTypes[attr.location][attr.instanceType] = {
+            vcpus:   attr.vcpu,               // cores
+            speed:  attr.clockSpeed,         // GHz
+            arch:   attr.processorArchitecture, // 32 or 64 bit
+            cpu:    attr.physicalProcessor,  // text desc
+            memory: attr.memory,
+            storage: attr.storage,
+            networkSpeed: attr.networkPerformance,
+            family: attr.instanceFamily  // optimized for storage, cpu, etc
+          };
+        }
+
+        // only price out the base installs (skip SQL server, etc)
+        if (attr.preInstalledSw === "NA") {
+          var os = attr.operatingSystem;   // "Linux"
+          var offers = data.terms.OnDemand[sku];
+          var only = Object.keys( offers )[0];
+          var dimensions = offers[only].priceDimensions;
+          only = Object.keys( dimensions )[0];
+
+          instanceTypes[attr.location][attr.instanceType].price =
+            instanceTypes[attr.location][attr.instanceType].price || {};
+
+          instanceTypes[attr.location][attr.instanceType].price[os] = {
+            OnDemand: dimensions[only].pricePerUnit.USD
+          };
+
+          // SKU info
+          // tenancy can be shared or dedicated
+          // operatingSystem, preInstalledSw, license varies by SKU
+        }
+
       }
     });
 
+  // data.terms.OnDemand[sku][0].priceDimensions[0].pricePerUnit.USD
+  // data.terms.Reserved[sku][0-2].priceDimensions[0].pricePerUnit.USD
+  //  unit === "Quantity" (up front)
+  //  unit === "Hrs"
+  //         termAttributes" : {
+  //            "LeaseContractLength" : "3yr",
+  //            "PurchaseOption" : "Partial Upfront" "All Upfront" "No Upfront"
+
+
+  //
   // console.log( Object.keys( productTypes ));
   console.log("instance types = " + Object.keys( instanceTypes ).length );
   console.log("regions = " + JSON.stringify( Object.keys( instanceTypes )));

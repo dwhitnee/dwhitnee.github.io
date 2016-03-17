@@ -5,7 +5,11 @@
 
 #periodicTable {
   padding: 2em;
-  display: none;
+/*  display: none; */
+}
+
+#periodicTable .header {
+  font-weight: bold;
 }
 
 #periodicTable .cell {
