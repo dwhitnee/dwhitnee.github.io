@@ -2,29 +2,38 @@
   display: none;
 }
 
-.cell {
-  display: table-cell;
-  padding-right: 1em;
-}
-.row {
-  display: table-row;
-}
-.dataTable {
-  display: table;
-}
 
 #periodicTable {
   padding: 2em;
   display: none;
 }
 
+#periodicTable .cell {
+  display: table-cell;
+  padding: 0.2em 1em 0.2em 0.2em;
+  border: 1px solid #ddd;
+}
+#periodicTable .row {
+  display: table-row;
+}
+
+.dataTable {
+  display: table;
+}
+
 
 .loading {
   display: none;
+}
+.spinner {
   background-image: url("https://my.ucla.edu/iwe/img/bg-spinner.gif");
   background-repeat: no-repeat;
-  background-size: 5em 5em;
-  height: 5em;
-  width: 5em;
-  margin: 1em;
+  background-size: 1.5em 1.5em;
+  height: 2em;
+  width: 2em;
+  display: inline-block;
+
+  position: relative;
+  top: 1em;
+  left: .5em;
 }
