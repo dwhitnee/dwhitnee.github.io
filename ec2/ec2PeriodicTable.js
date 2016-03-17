@@ -50,6 +50,7 @@ function populateTable( data ) {
 
 function populateRegionSelector( regions ) {
   var menu = $("#regionSelector");
+  regions.sort();
   for (var i=0; i < regions.length; i++ ) {
     menu.append( $("<option/>").attr( { value: regions[i] }).text( regions[i] ));
   }
