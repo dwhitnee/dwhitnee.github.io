@@ -31,16 +31,18 @@ function populateTable( data ) {
     row.append( $('<div class="cell" />').text( instanceType.storage ));
     row.append( $('<div class="cell" />').text( instanceType.networkSpeed ));
 
-    var costPerMonth = 0;;
-    if (instanceType.price.Linux) {
-      costPerMonth = 30 * 24 * instanceType.price.Linux.OnDemand;
+    var costPerMonth = "-";
+    if (instanceType.price.Linux !== undefined) {
+      costPerMonth = 30 * 24 * instanceType.price.Linux.Shared.OnDemand;
+      costPerMonth = costPerMonth.toFixed(2);
     }
-    row.append( $('<div class="cell" />').text( "$" + costPerMonth.toFixed(2) + "/mo"));
+    row.append( $('<div class="cell" />').text( "$" + costPerMonth + "/mo"));
 
-    if (instanceType.price.Windows) {
-      costPerMonth = 30 * 24 * instanceType.price.Windows.OnDemand;
+    if (instanceType.price.Windows !== undefined) {
+      costPerMonth = 30 * 24 * instanceType.price.Windows.Shared.OnDemand;
+      costPerMonth = costPerMonth.toFixed(2);
     }
-    row.append( $('<div class="cell" />').text( "$" + costPerMonth.toFixed(2) + "/mo"));
+    row.append( $('<div class="cell" />').text( "$" + costPerMonth + "/mo"));
 
     table.append( row );
   }
@@ -118,13 +120,28 @@ function processPricingData( data ) {
           instanceTypes[attr.location][attr.instanceType].price =
             instanceTypes[attr.location][attr.instanceType].price || {};
 
-          instanceTypes[attr.location][attr.instanceType].price[os] = {
+          instanceTypes[attr.location][attr.instanceType].price[os] =
+            instanceTypes[attr.location][attr.instanceType].price[os] || {};
+
+          // if ((attr.tenancy === "Shared") && !dimensions[only].pricePerUnit.USD)
+          //   debugger;
+
+
+          // if ((os === "Linux") && (attr.instanceType === "hi1.4xlarge") &&
+          //     (attr.location.startsWith("Asia Pacific")))
+          // {
+          //   debugger;
+          // }
+
+          instanceTypes[attr.location][attr.instanceType].price[os][attr.tenancy] = {
             OnDemand: dimensions[only].pricePerUnit.USD
           };
 
           // SKU info
-          // tenancy can be shared or dedicated
-          // operatingSystem, preInstalledSw, license varies by SKU
+          // tenancy can be "Dedicated", "Host", "Shared"
+          // operatingSystem can be "Linux", "NA", "RHEL", "SUSE", "Windows"
+
+          // preInstalledSw, license also varies by SKU
         }
 
       }
