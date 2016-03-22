@@ -1,3 +1,6 @@
 [submodule "tftjs"]
 	path = tftjs
 	url = https://github.com/dwhitnee/tftjs.git
+[submodule "daleks"]
+	path = daleks
+	url = https://github.com/dwhitnee/daleks.git
