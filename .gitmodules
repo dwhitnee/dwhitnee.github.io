@@ -4,3 +4,6 @@
 [submodule "daleks"]
 	path = daleks
 	url = https://github.com/dwhitnee/daleks.git
+[submodule "samples"]
+	path = samples
+	url = git@github.com:dwhitnee/samples.git
