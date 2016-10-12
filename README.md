@@ -1,5 +1,4 @@
-dwhitnee.github.io
+<a href="dwhitnee.github.io">dwhitnee.github.io</a>
 ==================
 
-
-Hey there, I've got a repository!
+This is a special Git repository that is automatically made into a website by GitHub.  Cool!
